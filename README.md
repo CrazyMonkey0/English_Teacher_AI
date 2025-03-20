@@ -2,8 +2,11 @@
 
 This project uses the Whisper model by OpenAI, available on Hugging Face
 
-## License
+### This project uses the:
 
-This project uses the [Whisper model](https://huggingface.co/openai/whisper-small.en) under the [Apache License 2.0](http://www.apache.org/licenses/LICENSE-2.0).
+[Whisper model](https://huggingface.co/openai/whisper-small.en) under the [Apache License 2.0](http://www.apache.org/licenses/LICENSE-2.0).
 
-The code for this project is also licensed under the MIT License
+[FastSpeech2Conformer model](https://huggingface.co/espnet/fastspeech2_conformer) under the [Apache License 2.0](http://www.apache.org/licenses/LICENSE-2.0).
+
+
+The code for this project is available under the MIT license
