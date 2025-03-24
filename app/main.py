@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
+from fastapi.middleware.cors import CORSMiddleware
 from app.routes.nlp import load_model_nlp, router as nlp_router
 from app.routes.tts import load_model_tts
 from app.routes.asr import load_model_asr, router as asr_router
@@ -8,8 +9,6 @@ import os
 # Initialize application
 app = FastAPI()
 
-# Mount static directory for serving static files
-app.mount("/static", StaticFiles(directory=os.path.join(os.path.dirname(__file__), "static")), name="static")
 
 # Load the pre-trained NLP 
 app.state.model_nlp, app.state.tokenizer_nlp = load_model_nlp()
@@ -27,6 +26,8 @@ app.include_router(asr_router)
 
 # Set the directory path for saving audio files
 app.state.AUDIO_DIR = os.path.join(os.path.dirname(__file__), "static", "audio")
+# Mount the audio directory to the /audio path
+app.mount("/audio", StaticFiles(directory=app.state.AUDIO_DIR), name="audio")
 
 
 @app.get("/")

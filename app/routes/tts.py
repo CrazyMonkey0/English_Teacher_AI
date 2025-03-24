@@ -38,5 +38,5 @@ def save_audio(request: Request, text: str):
     # Save the waveform as a .wav file
     sf.write(file_path, waveform.squeeze().detach().numpy(), samplerate=22050)
 
-    # Return the relative path to the saved audio file
-    return f"/static/audio/{file_name}"
+    # Return the url path to the generated audio file for the frontend
+    return f"http://127.0.0.1:8000/audio/{file_name}"

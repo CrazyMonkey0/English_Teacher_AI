@@ -34,6 +34,6 @@ async def chat(request: Request, message: str):
     response = tokenizer.batch_decode(generated_ids, skip_special_tokens=True)[0]
     
     # Save response as audio
-    file_path = save_audio(request, response)
+    url_path = save_audio(request, response)
 
-    return {"response": response, "audio": file_path}
+    return {"response": response, "audio": url_path}

@@ -1,6 +1,5 @@
-from sympy import im
 from transformers import WhisperForConditionalGeneration, WhisperProcessor
-from fastapi import APIRouter, Request
+from fastapi import APIRouter, Request, UploadFile, File
 import librosa
 import os
 
@@ -12,17 +11,19 @@ def load_model_asr():
     return processor, model
 
 @router.post("/asr")
-def asr(request: Request, audio_name: str):
+async def asr(request: Request, audio: UploadFile = File(...)):
     # Get the loaded ASR model and processor
     processor, model = request.app.state.processor_asr, request.app.state.model_asr
     # Audio file path
-    audio_path = os.path.join(request.app.state.AUDIO_DIR, audio_name)
+    audio_path = os.path.join(request.app.state.AUDIO_DIR, "temp", audio.filename)
+    with open(audio_path, "wb") as f:
+        f.write(await audio.read())
 
     # Loading audio file 
-    audio, sampling_rate = librosa.load(audio_path, sr=16000)
+    audio_data, sampling_rate = librosa.load(audio_path, sr=16000)
 
     # Preparing input data
-    inputs = processor(audio, return_tensors="pt", sampling_rate=sampling_rate)
+    inputs = processor(audio_data, return_tensors="pt", sampling_rate=sampling_rate)
     input_features = inputs["input_features"]
 
     # Generating token IDs
