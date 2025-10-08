@@ -22,7 +22,7 @@ app.add_middleware(
 app.state.model_nlp, app.state.tokenizer_nlp = load_model_nlp()
 
 # Load the pre-trained TTS 
-app.state.model_tts, app.state.tokenizer_tts, app.state.hifigan_tts = load_model_tts()
+app.state.model_tts = load_model_tts()
 
 # Load the pre-trained ASR
 app.state.processor_asr, app.state.model_asr = load_model_asr()

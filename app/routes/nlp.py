@@ -1,11 +1,16 @@
 from transformers import AutoModelForCausalLM, AutoTokenizer
+from pydantic import BaseModel
 from fastapi import APIRouter, Request
 from .tts import save_audio
+
 
 # Model name for NLP
 model_name = "Qwen/Qwen2.5-1.5B-Instruct"
 router = APIRouter()
 
+class ChatRequest(BaseModel):
+    message: str
+    
 # Load NLP model and tokenizer
 def load_model_nlp():
     model = AutoModelForCausalLM.from_pretrained(model_name, torch_dtype="auto", device_map="auto")
@@ -14,7 +19,8 @@ def load_model_nlp():
 
 # Handle chat requests
 @router.post("/chat")
-async def chat(request: Request, message: str):
+async def chat(request: Request, message: ChatRequest):
+    message = message.message
     # Get the loaded NLP model and tokenizer
     model, tokenizer = request.app.state.model_nlp, request.app.state.tokenizer_nlp
     
