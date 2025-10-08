@@ -68,6 +68,7 @@ button {
 }
 
 .bot-msg {
-    background-color: #eee;
+    background-color: #b4b4b4;
+    color: black;
     text-align: left;
 }
