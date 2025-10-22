@@ -1,6 +1,12 @@
-body {
-  font-family: Arial, sans-serif;
+.App {
   margin: 0;
   padding: 0;
-  background-color: black;
+  width: 100%;
+  height: 100vh;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+* {
+  box-sizing: border-box;
 }
