@@ -4,6 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.routes.nlp import load_model_nlp, router as nlp_router
 from app.routes.tts import load_model_tts
 from app.routes.asr import load_model_asr, router as asr_router
+from app.routes.translation import load_model_translation, router as trans_router
 import os
 
 # Initialize application
@@ -21,6 +22,9 @@ app.add_middleware(
 # Load the pre-trained NLP 
 app.state.model_nlp, app.state.tokenizer_nlp = load_model_nlp()
 
+# Load the pre-trained Translation
+app.state.model_trans, app.state.tokenizer_trans = load_model_translation()
+
 # Load the pre-trained TTS 
 app.state.model_tts = load_model_tts()
 
@@ -29,6 +33,8 @@ app.state.processor_asr, app.state.model_asr = load_model_asr()
 
 # Include the NLP router
 app.include_router(nlp_router, prefix="/nlp", tags=["NLP"])
+# Include the translation router
+app.include_router(trans_router)
 # Include the ASR router
 app.include_router(asr_router)
 
