@@ -1,8 +1,12 @@
 from transformers import AutoModelForSeq2SeqLM, AutoTokenizer
 from fastapi import APIRouter, Request
+from pydantic import BaseModel
 
 model_name = "allegro/BiDi-eng-pol"
 router = APIRouter()
+
+class TextInput(BaseModel):
+    text: str 
 
 # Ładowanie modelu tłumaczenia
 def load_model_translation():
@@ -11,11 +15,11 @@ def load_model_translation():
     return model, tokenizer
 
 @router.post("/translate")
-async def translate_text(request: Request, sentence_eng: str):
+async def translate_text(request: Request, text: TextInput):
     model, tokenizer = request.app.state.model_trans, request.app.state.tokenizer_trans
 
     # Prefiks >>pol<< informuje model, że ma tłumaczyć na polski
-    text = ">>pol<< " + sentence_eng
+    text = ">>pol<< " + text.text
 
     # Tokenizacja i generowanie tłumaczenia
     inputs = tokenizer([text], return_tensors="pt", padding=True)
