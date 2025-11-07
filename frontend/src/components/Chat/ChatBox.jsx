@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import MessageInput from './MessageInput';
 import { useChat } from '../../hooks/useChat';
 import { translateText } from '../../services/chatTranslation';
+import { Play, Pause } from 'lucide-react';
 import "./chat.css";
 
 function ChatBox() {
@@ -9,6 +10,8 @@ function ChatBox() {
     const messagesEndRef = useRef(null);
     const [translations, setTranslations] = useState({});
     const [visibleTranslations, setVisibleTranslations] = useState({});
+    const [playingIndex, setPlayingIndex] = useState(null);
+    const audioPlayerRef = useRef(new Audio());
 
     // Auto-scroll 
     useEffect(() => {
@@ -49,6 +52,30 @@ function ChatBox() {
         }));
     };
 
+    const handlePlayAudio = (index, audioSrc) => {
+        const player = audioPlayerRef.current;
+
+        // Jeśli aktualnie odtwarzamy to samo audio - zatrzymaj
+        if (playingIndex === index) {
+            player.pause();
+            setPlayingIndex(null);
+            return;
+        }
+
+        // Zatrzymaj poprzednie audio jeśli było odtwarzane
+        player.pause();
+
+        // Ustaw nowe źródło i odtwórz
+        player.src = audioSrc;
+        player.play();
+        setPlayingIndex(index);
+
+        // Resetuj stan po zakończeniu odtwarzania
+        player.onended = () => {
+            setPlayingIndex(null);
+        };
+    };
+
     return (
         <div className="chatbox">
             <div className="chat-header">
@@ -65,44 +92,48 @@ function ChatBox() {
                         <div className="message-content">
                             <p>{msg.text}</p>
 
-                            {/* Audio bot (speech synthesis) */}
-                            {msg.audio && (
-                                <audio src={msg.audio} controls className="bot-audio" />
-                            )}
-
-                            {/* Przycisk tłumaczenia — tylko jeśli brak tłumaczenia */}
-                            {!translations[index] && (
-                                <button
-                                    className="translate-btn"
-                                    onClick={() => handleTranslate(index, msg.text)}
-                                    disabled={loading}
-                                >
-                                    Translate
-                                </button>
-                            )}
-
-                            {/* Wyświetlane tłumaczenie */}
-                            {translations[index] && visibleTranslations[index] && (
-                                <>
-                                    <p className="translation">{translations[index]}</p>
+                            <div className="message-buttons">
+                                {msg.audio && (
                                     <button
-                                        className="hide-btn"
+                                        onClick={() => handlePlayAudio(index, msg.audio)}
+                                        title={playingIndex === index ? "Wstrzymaj" : "Odtwórz nagranie"}
+                                        className={`mess ${playingIndex === index ? "pause" : "play"}`}
+                                    >
+                                        {playingIndex === index ? <Pause size={20} /> : <Play size={20} />}
+                                    </button>
+                                )}
+
+                                {!translations[index] && (
+                                    <button
+                                        className="show-btn"
+                                        onClick={() => handleTranslate(index, msg.text)}
+                                        disabled={loading}
+                                    >
+                                        Translate
+                                    </button>
+                                )}
+
+                                {translations[index] && visibleTranslations[index] && (
+                                    <>
+                                        <p className="translation">{translations[index]}</p>
+                                        <button
+                                            className="hide-btn"
+                                            onClick={() => toggleTranslation(index)}
+                                        >
+                                            Hide Translation
+                                        </button>
+                                    </>
+                                )}
+
+                                {translations[index] && !visibleTranslations[index] && (
+                                    <button
+                                        className="show-btn"
                                         onClick={() => toggleTranslation(index)}
                                     >
-                                        Hide Translation
+                                        Translate
                                     </button>
-                                </>
-                            )}
-
-                            {/* Pokaż tłumaczenie jeśli jest ukryte */}
-                            {translations[index] && !visibleTranslations[index] && (
-                                <button
-                                    className="show-btn"
-                                    onClick={() => toggleTranslation(index)}
-                                >
-                                    Translate
-                                </button>
-                            )}
+                                )}
+                            </div>
                         </div>
 
                         <span className="message-time">
