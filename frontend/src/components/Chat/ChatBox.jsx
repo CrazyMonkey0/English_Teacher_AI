@@ -92,6 +92,11 @@ function ChatBox() {
                         <div className="message-content">
                             <p>{msg.text}</p>
 
+                            {/* tłumaczenie nad przyciskami */}
+                            {translations[index] && visibleTranslations[index] && (
+                                <p className="translation">{translations[index]}</p>
+                            )}
+
                             <div className="message-buttons">
                                 {msg.audio && (
                                     <button
@@ -114,15 +119,12 @@ function ChatBox() {
                                 )}
 
                                 {translations[index] && visibleTranslations[index] && (
-                                    <>
-                                        <p className="translation">{translations[index]}</p>
-                                        <button
-                                            className="hide-btn"
-                                            onClick={() => toggleTranslation(index)}
-                                        >
-                                            Hide Translation
-                                        </button>
-                                    </>
+                                    <button
+                                        className="hide-btn"
+                                        onClick={() => toggleTranslation(index)}
+                                    >
+                                        Hide Translation
+                                    </button>
                                 )}
 
                                 {translations[index] && !visibleTranslations[index] && (
