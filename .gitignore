@@ -174,3 +174,4 @@ cython_debug/
 .pypirc
 
 app/static/audio/*
+app/test.db
