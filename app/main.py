@@ -1,10 +1,11 @@
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
-from app.routes.nlp import load_model_nlp, router as nlp_router
-from app.routes.tts import load_model_tts
-from app.routes.asr import load_model_asr, router as asr_router
-from app.routes.translation import load_model_translation, router as trans_router
+from routes.nlp import load_model_nlp, router as nlp_router
+from routes.tts import load_model_tts
+from routes.asr import load_model_asr, router as asr_router
+from routes.translation import load_model_translation, router as trans_router
+from routes import auth, users
 import os
 
 # Initialize application
@@ -43,6 +44,17 @@ app.state.AUDIO_DIR = os.path.join(os.path.dirname(__file__), "static", "audio")
 # Mount the audio directory to the /audio path
 app.mount("/audio", StaticFiles(directory=app.state.AUDIO_DIR), name="audio")
 
+app.include_router(
+    auth.router,
+    prefix="/auth",
+    tags=["auth"]
+)
+
+app.include_router(
+    users.router,
+    prefix="/users",
+    tags=["users"]
+)
 
 @app.get("/")
 def root():
