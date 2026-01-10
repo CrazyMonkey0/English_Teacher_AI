@@ -1,10 +1,15 @@
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
-from app.routes.nlp import load_model_nlp, router as nlp_router
-from app.routes.tts import load_model_tts
-from app.routes.asr import load_model_asr, router as asr_router
-from app.routes.translation import load_model_translation, router as trans_router
+from slowapi.middleware import SlowAPIMiddleware
+from core.rate_limit import limiter, rate_limit_handler
+from middleware.rate_limit import RateLimitMiddleware
+from slowapi.errors import RateLimitExceeded
+from routes.nlp import load_model_nlp, router as nlp_router
+from routes.tts import load_model_tts
+from routes.asr import load_model_asr, router as asr_router
+from routes.translation import load_model_translation, router as trans_router
+from routes import auth, users, csrf
 import os
 
 # Initialize application
@@ -18,6 +23,12 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+# Add rate limiting middleware
+app.state.limiter = limiter
+app.add_middleware(SlowAPIMiddleware)
+
+app.add_exception_handler(RateLimitExceeded, rate_limit_handler)
+app.add_middleware(RateLimitMiddleware)
 
 # Load the pre-trained NLP 
 app.state.model_nlp, app.state.tokenizer_nlp = load_model_nlp()
@@ -38,11 +49,27 @@ app.include_router(trans_router)
 # Include the ASR router
 app.include_router(asr_router)
 
+app.include_router(
+    auth.router,
+    prefix="/auth",
+    tags=["auth"]
+)
+
+app.include_router(
+    users.router,
+    prefix="/users",
+    tags=["users"]
+)
+app.include_router(
+    csrf.router,
+    prefix="/security",
+    tags=["security"]
+)
+
 # Set the directory path for saving audio files
 app.state.AUDIO_DIR = os.path.join(os.path.dirname(__file__), "static", "audio")
 # Mount the audio directory to the /audio path
 app.mount("/audio", StaticFiles(directory=app.state.AUDIO_DIR), name="audio")
-
 
 @app.get("/")
 def root():
