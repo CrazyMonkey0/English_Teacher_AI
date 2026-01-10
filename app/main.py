@@ -3,6 +3,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 from slowapi.middleware import SlowAPIMiddleware
 from core.rate_limit import limiter, rate_limit_handler
+from middleware.rate_limit import RateLimitMiddleware
 from slowapi.errors import RateLimitExceeded
 from routes.nlp import load_model_nlp, router as nlp_router
 from routes.tts import load_model_tts
@@ -27,6 +28,7 @@ app.state.limiter = limiter
 app.add_middleware(SlowAPIMiddleware)
 
 app.add_exception_handler(RateLimitExceeded, rate_limit_handler)
+app.add_middleware(RateLimitMiddleware)
 
 # Load the pre-trained NLP 
 app.state.model_nlp, app.state.tokenizer_nlp = load_model_nlp()
