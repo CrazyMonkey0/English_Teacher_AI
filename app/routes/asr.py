@@ -2,6 +2,7 @@ from transformers import WhisperForConditionalGeneration, WhisperProcessor
 from fastapi import APIRouter, Request, UploadFile, File
 import librosa
 import os
+from core.rate_limit import limiter
 
 router = APIRouter()
 
@@ -11,6 +12,7 @@ def load_model_asr():
     return processor, model
 
 @router.post("/asr")
+@limiter.limit("4/minute") 
 async def asr(request: Request, audio: UploadFile = File(...)):
     # Get the loaded ASR model and processor
     processor, model = request.app.state.processor_asr, request.app.state.model_asr

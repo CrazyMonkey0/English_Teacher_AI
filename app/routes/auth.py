@@ -1,26 +1,23 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 from users import fastapi_users
 from core.security import auth_backend
+from core.rate_limit import limiter
 from schemas.user import UserRead, UserCreate
 
 router = APIRouter()
 
-# Logowanie i wylogowanie
 router.include_router(
     fastapi_users.get_auth_router(auth_backend),
 )
 
-# Rejestracja
 router.include_router(
-    fastapi_users.get_register_router(UserRead, UserCreate),
+    fastapi_users.get_register_router(UserRead, UserCreate), 
 )
 
-# Reset hasła
 router.include_router(
-    fastapi_users.get_reset_password_router(),
+    fastapi_users.get_reset_password_router(), 
 )
 
-# Weryfikacja email (opcjonalnie)
 router.include_router(
     fastapi_users.get_verify_router(UserRead),
 )

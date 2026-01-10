@@ -1,4 +1,5 @@
-from fastapi import APIRouter, Response
+from fastapi import APIRouter, Response, Request
+from core.rate_limit import limiter
 import secrets
 
 from sympy import false
@@ -9,12 +10,13 @@ def generate_csrf_token():
     return secrets.token_urlsafe(32)
 
 @router.get("/csrf")
-def csrf(response: Response):
+@limiter.limit("30/minute")  # Rate limit: 30 requests per minute
+def csrf(request: Request, response: Response):
     token = generate_csrf_token()
     response.set_cookie(
         key="csrf_token",
         value=token,
-        secure=false,  # Set to True in production with HTTPS
+        secure=False,  # Set to True in production with HTTPS
         samesite="lax",
         httponly=False,
     )

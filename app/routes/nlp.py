@@ -1,6 +1,7 @@
 from transformers import AutoModelForCausalLM, AutoTokenizer
 from pydantic import BaseModel
 from fastapi import APIRouter, Request
+from core.rate_limit import limiter
 from .tts import save_audio
 
 
@@ -19,6 +20,7 @@ def load_model_nlp():
 
 # Handle chat requests
 @router.post("/chat")
+@limiter.limit("4/minute")  # Rate limit: 4 requests per minute
 async def chat(request: Request, message: ChatRequest):
     message = message.message
     # Get the loaded NLP model and tokenizer
@@ -33,7 +35,13 @@ async def chat(request: Request, message: ChatRequest):
     # Tokenize input and generate a response
     text = tokenizer.apply_chat_template(messages, tokenize=False, add_generation_prompt=True)
     model_inputs = tokenizer([text], return_tensors="pt").to(model.device)
-    generated_ids = model.generate(**model_inputs, max_new_tokens=512)
+    generated_ids = model.generate(
+        **model_inputs, 
+        max_new_tokens=512,
+        top_p=0.9,
+        temperature=0.7,
+        do_sample=True,
+        pad_token_id=tokenizer.eos_token_id)
     
     # Decode the response
     generated_ids = [output_ids[len(input_ids):] for input_ids, output_ids in zip(model_inputs.input_ids, generated_ids)]
