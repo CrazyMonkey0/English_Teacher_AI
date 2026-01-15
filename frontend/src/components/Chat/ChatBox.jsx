@@ -3,6 +3,8 @@ import MessageInput from './MessageInput';
 import { useChat } from '../../hooks/useChat';
 import { translateText } from '../../services/chatTranslation';
 import { Play, Pause } from 'lucide-react';
+import { useAuth } from '../../context/useAuth';
+import { useNavigate } from "react-router-dom";
 import "./chat.css";
 
 function ChatBox() {
@@ -12,6 +14,9 @@ function ChatBox() {
     const [visibleTranslations, setVisibleTranslations] = useState({});
     const [playingIndex, setPlayingIndex] = useState(null);
     const audioPlayerRef = useRef(new Audio());
+    const { user, isAuthenticated, logout } = useAuth();
+    const navigate = useNavigate();
+
 
     // Auto-scroll 
     useEffect(() => {
@@ -76,11 +81,34 @@ function ChatBox() {
         };
     };
 
+    const handleLogout = async () => {
+        await logout();               // wylogowanie użytkownika
+        navigate("/", { replace: true }); // przekierowanie na stronę główną
+    };
+
     return (
         <div className="chatbox">
             <div className="chat-header">
-                <h2>Asystent językowy</h2>
-                <p>Rozmawiam i poprawiam twoje błędy</p>
+                <div>
+                    <h2>Asystent językowy</h2>
+                    <p>Rozmawiam i poprawiam twoje błędy</p>
+                </div>
+
+                <div>
+                    {isAuthenticated ? (
+                        <button className="auth-btn" onClick={handleLogout}>
+                            Wyloguj
+                        </button>
+                    ) : (
+                        <button
+                            className="auth-btn"
+                            onClick={() => navigate("/login", { replace: true })}
+                        >
+                            Zaloguj
+                        </button>
+                    )}
+                </div>
+
             </div>
 
             <div className="messages">
