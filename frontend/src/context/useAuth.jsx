@@ -1,52 +1,100 @@
+// src/context/useAuth.jsx
 import { createContext, useContext, useState, useEffect } from "react";
-import api from "../services/api";
-import axios from "axios";
+import { loginUser, logoutUser, getCurrentUser } from "../services/auth";
+import { initCsrf } from "../services/csrf";
+import { getCookie } from "../services/cookies";
 
 const AuthContext = createContext();
 
 export function AuthProvider({ children }) {
+    const [user, setUser] = useState(null);
     const [isAuthenticated, setIsAuthenticated] = useState(false);
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState(null);
     const [checkingAuth, setCheckingAuth] = useState(true);
+    const [error, setError] = useState(null);
+    const [loading, setLoading] = useState(false);
 
-    // Sprawdzenie stanu zalogowania po reloadzie
     useEffect(() => {
-        const loggedIn = sessionStorage.getItem("loggedIn") === "true";
-        setIsAuthenticated(loggedIn);
-        setCheckingAuth(false);
+        let isMounted = true;
+
+        const checkAuth = async () => {
+            try {
+                if (getCookie('csrftoken') === undefined) {
+                    await initCsrf();
+                }
+                // SPRAWDŹ NAJPIERW localStorage
+                const cachedAuth = localStorage.getItem('isAuthenticated');
+                const cachedUser = localStorage.getItem('user');
+
+                if (cachedAuth === 'true' && cachedUser) {
+                    // Użytkownik był zalogowany - ustaw stan z cache
+                    if (isMounted) {
+                        setUser(JSON.parse(cachedUser));
+                        setIsAuthenticated(true);
+                        setCheckingAuth(false);
+                    }
+
+                    // OPCJONALNIE: Zweryfikuj w tle (silent refresh)
+                    // To nie blokuje UI, ale sprawdza czy token jest nadal ważny
+                    try {
+                        const userData = await getCurrentUser();
+                        if (isMounted) {
+                            setUser(userData);
+                            localStorage.setItem('user', JSON.stringify(userData));
+                        }
+                    } catch (err) {
+                        // Token wygasł - wyloguj
+                        if (isMounted) {
+                            setUser(null);
+                            setIsAuthenticated(false);
+                            localStorage.removeItem('isAuthenticated');
+                            localStorage.removeItem('user');
+                        }
+                    }
+                } else {
+                    // Brak cache - sprawdź na serwerze
+                    const userData = await getCurrentUser();
+                    if (isMounted) {
+                        setUser(userData);
+                        setIsAuthenticated(true);
+                        localStorage.setItem('isAuthenticated', 'true');
+                        localStorage.setItem('user', JSON.stringify(userData));
+                    }
+                }
+            } catch (err) {
+                if (isMounted) {
+                    setUser(null);
+                    setIsAuthenticated(false);
+                    localStorage.removeItem('isAuthenticated');
+                    localStorage.removeItem('user');
+                }
+            } finally {
+                if (isMounted) {
+                    setCheckingAuth(false);
+                }
+            }
+        };
+
+        checkAuth();
+
+        return () => {
+            isMounted = false;
+        };
     }, []);
 
     const login = async (email, password) => {
+        await initCsrf();
         setLoading(true);
         setError(null);
-
         try {
-            const formData = new URLSearchParams();
-            formData.append("grant_type", "password");
-            formData.append("username", email);
-            formData.append("password", password);
-
-            await api.post("/auth/login", formData, {
-                headers: { "Content-Type": "application/x-www-form-urlencoded" },
-                withCredentials: true,
-            });
-
-            // zapisujemy tylko fakt, że user jest zalogowany
+            const userData = await loginUser(email, password);
+            setUser(userData);
             setIsAuthenticated(true);
-            sessionStorage.setItem("loggedIn", "true");
 
+            // Zapisz w localStorage
+            localStorage.setItem('isAuthenticated', 'true');
+            localStorage.setItem('user', JSON.stringify(userData));
         } catch (err) {
-            setIsAuthenticated(false);
-            sessionStorage.removeItem("loggedIn");
-
-            if (axios.isAxiosError(err)) {
-                if (err.response?.status === 401) setError("Invalid email or password");
-                else setError("Server error, please try again later");
-            } else {
-                setError("Unknown error");
-            }
-
+            setError(err.response?.data?.detail || "Błąd logowania");
             throw err;
         } finally {
             setLoading(false);
@@ -55,19 +103,34 @@ export function AuthProvider({ children }) {
 
     const logout = async () => {
         try {
-            await api.post("/auth/logout", {}, { withCredentials: true });
-        } catch { }
-        setIsAuthenticated(false);
-        sessionStorage.removeItem("loggedIn");
+            await logoutUser();
+            await initCsrf();
+            setUser(null);
+            setIsAuthenticated(false);
+
+            // Usuń z localStorage
+            localStorage.removeItem('isAuthenticated');
+            localStorage.removeItem('user');
+        } catch (err) {
+            console.error("Logout error:", err);
+        }
     };
 
     return (
-        <AuthContext.Provider value={{ isAuthenticated, checkingAuth, login, logout, loading, error }}>
+        <AuthContext.Provider
+            value={{
+                user,
+                isAuthenticated,
+                checkingAuth,
+                error,
+                loading,
+                login,
+                logout,
+            }}
+        >
             {children}
         </AuthContext.Provider>
     );
 }
 
-export function useAuth() {
-    return useContext(AuthContext);
-}
+export const useAuth = () => useContext(AuthContext);
