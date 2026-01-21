@@ -1,11 +1,10 @@
 import { Routes, Route } from "react-router-dom";
 import ChatBox from "./components/Chat/ChatBox";
 import Login from "./components/Auth/LoginForm";
+import Register from "./components/Auth/RegistrationForm";
 import { AuthProvider } from "./context/useAuth";
 import "./App.css";
-import { initCsrf } from "./services/csrf";
 
-initCsrf();
 
 function App() {
   return (
@@ -14,6 +13,7 @@ function App() {
         <Routes>
           <Route path="/" element={<ChatBox />} />
           <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
         </Routes>
       </AuthProvider>
 
