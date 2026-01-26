@@ -14,8 +14,9 @@ def generate_csrf_token():
 def csrf(request: Request, response: Response):
     token = generate_csrf_token()
     response.set_cookie(
+        # key="__Host-csrf",  # Using "__Host-" prefix for better security only https
         key="csrf_token",
-        value=token,
+        value=token, 
         secure=False,  # Set to True in production with HTTPS
         samesite="lax",
         httponly=False,

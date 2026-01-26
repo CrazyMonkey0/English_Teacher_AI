@@ -1,9 +1,7 @@
-import axios from "axios";
-
-const API_BASE = "http://127.0.0.1:8000";
+import api from "./api";  // import instancji Axios z CSRF interceptor
 
 // Sending text for translation
 export const translateText = async (text) => {
-    const response = await axios.post(`${API_BASE}/translate`, { text });
+    const response = await api.post("/translate", { text });
     return response.data;
 };

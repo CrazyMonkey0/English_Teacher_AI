@@ -1,10 +1,7 @@
-import axios from "axios";
+import api from "./api";
 
-const API_BASE = "http://127.0.0.1:8000";
-
-// Sending text message to NLP (bot)
 export const sendMessageToBot = async (message) => {
-    const response = await axios.post(`${API_BASE}/nlp/chat`, { message });
+    const response = await api.post("/nlp/chat", { message });
     return response.data;
 };
 
@@ -12,7 +9,7 @@ export const sendMessageToBot = async (message) => {
 export const sendAudioToASR = async (audioBlob) => {
     const formData = new FormData();
     formData.append("audio", audioBlob, `${Date.now()}.wav`);
-    const response = await axios.post(`${API_BASE}/asr`, formData, {
+    const response = await api.post("/asr", formData, {
         headers: { "Content-Type": "multipart/form-data" },
     });
     return response.data;
