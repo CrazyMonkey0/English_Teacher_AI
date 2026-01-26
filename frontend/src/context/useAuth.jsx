@@ -94,8 +94,8 @@ export function AuthProvider({ children }) {
             localStorage.setItem('isAuthenticated', 'true');
             localStorage.setItem('user', JSON.stringify(userData));
         } catch (err) {
-            setError(err.response?.data?.detail || "Błąd logowania");
-            throw err;
+            setError("Nieprawidłowy email lub hasło");
+            throw error;
         } finally {
             setLoading(false);
         }
