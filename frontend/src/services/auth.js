@@ -1,42 +1,40 @@
-import api from './api'; // lub axios
+import api from './api';
 
 export async function loginUser(email, password) {
-    const response = await api.post('/auth/login',
+    await api.post(
+        '/auth/login',
         new URLSearchParams({ username: email, password }),
-        {
-            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-            withCredentials: true
-        }
+        { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }
     );
 
-    // Po zalogowaniu pobierz dane użytkownika
-    const userData = await getCurrentUser();
-    return userData;
+    return await getCurrentUser();
 }
 
 export async function logoutUser() {
-    const response = await api.post('/auth/logout', {}, {
-        withCredentials: true
-    });
+    const response = await api.post('/auth/logout');
+    return response.data;
+}
+
+export async function forgotPassword(email) {
+    const response = await api.post('/auth/forgot-password', {
+        email: email,
+    }, { headers: { 'Content-Type': 'application/json' } });
     return response.data;
 }
 
 export async function getCurrentUser() {
-    const response = await api.get('/users/me', {
-        withCredentials: true
-    });
+    const response = await api.get('/users/me');
     return response.data;
 }
 
-
 export async function registerUser(data) {
-    const res = await api.post("/auth/register", {
+    const res = await api.post('/auth/register', {
         email: data.email,
         password: data.password,
         username: data.username,
         first_name: data.first_name,
         last_name: data.last_name,
-    });
+    }, { headers: { 'Content-Type': 'application/json' } });
 
     return res.data;
 }
