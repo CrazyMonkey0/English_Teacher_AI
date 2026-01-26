@@ -33,7 +33,7 @@ Hello,
 We have received a request to reset the password for your account.
 To set a new password, click on the link below:
 
-http://localhost:5173/reset-password?token={token}
+http://127.0.0.1:5173/reset-password?token={token}
 
 
 ⚠️ The link is valid for 15 minutes!

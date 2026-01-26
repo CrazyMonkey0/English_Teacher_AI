@@ -22,6 +22,14 @@ export async function forgotPassword(email) {
     return response.data;
 }
 
+export async function resetPassword(token, newPassword) {
+    const response = await api.post('/auth/reset-password', {
+        token: token,
+        password: newPassword,
+    }, { headers: { 'Content-Type': 'application/json' } });
+    return response.data;
+}
+
 export async function getCurrentUser() {
     const response = await api.get('/users/me');
     return response.data;
