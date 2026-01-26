@@ -19,6 +19,7 @@ async def get_user_db(
 class UserManager(IntegerIDMixin, BaseUserManager[User, int]):
     reset_password_token_secret = SECRET
     verification_token_secret = SECRET
+    reset_password_token_lifetime_seconds = 60 * 15  # 15 minutes 
 
     async def on_after_register(self, user: User, request: Optional[Request] = None): 
         print(f"User {user.id} has registered.")
@@ -26,7 +27,22 @@ class UserManager(IntegerIDMixin, BaseUserManager[User, int]):
     async def on_after_forgot_password(
         self, user: User, token: str, request: Optional[Request] = None
     ):
-        print(f"User {user.id} has forgot their password. Reset token: {token}")
+        print(f"""
+Hello,
+
+We have received a request to reset the password for your account.
+To set a new password, click on the link below:
+
+http://localhost:5173/reset-password?token={token}
+
+
+⚠️ The link is valid for 15 minutes!
+
+If this is not you, please ignore this message—your password will remain unchanged.
+
+Best regards,
+    The English Buddy Team
+""")
     
     async def create(self, user_create, safe = False, request = None):
         if not getattr(user_create, "username", None):
