@@ -20,6 +20,10 @@
     backdrop-filter: blur(10px);
     text-align: center;
     color: #000000;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
 }
 
 .chat-header h2 {
@@ -33,6 +37,48 @@
     margin: 5px 0 0 0;
     font-size: clamp(0.85rem, 2vw, 1rem);
     color: #666;
+}
+
+.chat-header>div:first-child {
+    flex: 1;
+}
+
+.chat-header>div:last-child {
+    flex-shrink: 0;
+}
+
+/* Auth button in header */
+.auth-btn {
+    padding: 12px 24px;
+    border: none;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.2);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+}
+
+.auth-btn:hover:not(:disabled) {
+    background: linear-gradient(135deg, #5568d3 0%, #63408a 100%);
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+}
+
+.auth-btn:active:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+}
+
+.auth-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
 }
 
 .messages {
@@ -305,6 +351,18 @@
     color: white;
     flex-shrink: 0;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    padding: 0;
+}
+
+/* Ensure SVG icons are visible */
+.icon-btn svg {
+    width: 20px;
+    height: 20px;
+    color: white;
+    stroke: currentColor;
+    stroke-width: 2.5;
+    fill: none;
+    display: block;
 }
 
 .icon-btn:hover:not(:disabled) {
@@ -330,16 +388,24 @@
 
 /* Button colors with gradients */
 .icon-btn.mic {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #363631 0%, #57515f 100%);
 }
 
 .icon-btn.mic:hover:not(:disabled) {
-    background: linear-gradient(135deg, #5568d3 0%, #63408a 100%);
+    background: linear-gradient(135deg, #41413b 0%, #2e292e 100%);
+}
+
+.icon-btn.mic svg {
+    color: white;
 }
 
 .icon-btn.stop {
     background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);
     animation: pulse 1.5s ease-in-out infinite;
+}
+
+.icon-btn.stop svg {
+    color: white;
 }
 
 @keyframes pulse {
@@ -368,6 +434,10 @@
     background: linear-gradient(135deg, #40c057 0%, #018a44 100%);
 }
 
+.icon-btn.play svg {
+    color: white;
+}
+
 .icon-btn.play:disabled,
 .icon-btn.play.disabled {
     background: #888888;
@@ -381,6 +451,10 @@
     background: linear-gradient(135deg, #ee5a6f 0%, #bb2d3b 100%);
 }
 
+.icon-btn.clear svg {
+    color: white;
+}
+
 .icon-btn.clear:disabled,
 .icon-btn.clear.disabled {
     background: #888888;
@@ -392,6 +466,10 @@
 
 .icon-btn.send:hover:not(:disabled) {
     background: linear-gradient(135deg, #5568d3 0%, #63408a 100%);
+}
+
+.icon-btn.send svg {
+    color: white;
 }
 
 .icon-btn.send:disabled {

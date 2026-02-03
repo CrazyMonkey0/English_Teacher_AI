@@ -1,13 +1,16 @@
+import "./auth.css";
+
 export default function ForgotPasswordSent() {
     return (
-        <div className="max-w-md mx-auto mt-10 text-center">
-            <h2 className="text-xl font-semibold mb-2">
-                Sprawdź email
-            </h2>
-            <p className="text-gray-600">
-                Jeśli konto z tym adresem email istnieje,
-                wysłaliśmy link do zmiany hasła.
-            </p>
+        <div className="auth-page">
+            <div className="confirmation-card">
+                <div className="confirmation-icon">✓</div>
+                <h2>Sprawdź email</h2>
+                <p>
+                    Jeśli konto z tym adresem email istnieje,
+                    wysłaliśmy link do zmiany hasła.
+                </p>
+            </div>
         </div>
     );
 }

@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/useAuth";
 import { registerUser } from "../../services/auth";
+import "./auth.css";
 
 export default function RegistrationForm() {
     const navigate = useNavigate();
@@ -58,78 +59,81 @@ export default function RegistrationForm() {
 
     if (checkingAuth) {
         return (
-            <div style={{ maxWidth: 400, margin: "0 auto", textAlign: "center", padding: "50px" }}>
+            <div className="auth-checking">
+                <div className="auth-checking-spinner"></div>
                 <p>Sprawdzanie autoryzacji...</p>
             </div>
         );
     }
 
     return (
-        <div style={{ maxWidth: 400, margin: "0 auto" }}>
-            <h2>Rejestracja</h2>
-            {error && <p style={{ color: "red" }}>{error}</p>}
-            <form onSubmit={handleSubmit}>
-                <div style={{ marginBottom: 10 }}>
-                    <input
-                        name="username"
-                        placeholder="Nazwa użytkownika"
-                        value={form.username}
-                        onChange={handleChange}
-                        required
-                    />
-                </div>
-                <div style={{ marginBottom: 10 }}>
-                    <input
-                        name="firstName"
-                        placeholder="Imię"
-                        value={form.firstName}
-                        onChange={handleChange}
-                        required
-                    />
-                </div>
-                <div style={{ marginBottom: 10 }}>
-                    <input
-                        name="lastName"
-                        placeholder="Nazwisko"
-                        value={form.lastName}
-                        onChange={handleChange}
-                        required
-                    />
-                </div>
-                <div style={{ marginBottom: 10 }}>
-                    <input
-                        name="email"
-                        type="email"
-                        placeholder="Email"
-                        value={form.email}
-                        onChange={handleChange}
-                        required
-                    />
-                </div>
-                <div style={{ marginBottom: 10 }}>
-                    <input
-                        type="password"
-                        name="password"
-                        placeholder="Hasło"
-                        value={form.password}
-                        onChange={handleChange}
-                        required
-                    />
-                </div>
-                <div style={{ marginBottom: 10 }}>
-                    <input
-                        type="password"
-                        name="confirmPassword"
-                        placeholder="Potwierdź hasło"
-                        value={form.confirmPassword}
-                        onChange={handleChange}
-                        required
-                    />
-                </div>
-                <button type="submit" disabled={loading}>
-                    {loading ? "Rejestracja..." : "Zarejestruj się"}
-                </button>
-            </form>
+        <div className="auth-page">
+            <div className="auth-form-wrapper">
+                <h2>Rejestracja</h2>
+                {error && <p className="auth-error-message">{error}</p>}
+                <form onSubmit={handleSubmit}>
+                    <div className="form-input-group">
+                        <input
+                            name="username"
+                            placeholder="Nazwa użytkownika"
+                            value={form.username}
+                            onChange={handleChange}
+                            required
+                        />
+                    </div>
+                    <div className="form-input-group">
+                        <input
+                            name="firstName"
+                            placeholder="Imię"
+                            value={form.firstName}
+                            onChange={handleChange}
+                            required
+                        />
+                    </div>
+                    <div className="form-input-group">
+                        <input
+                            name="lastName"
+                            placeholder="Nazwisko"
+                            value={form.lastName}
+                            onChange={handleChange}
+                            required
+                        />
+                    </div>
+                    <div className="form-input-group">
+                        <input
+                            name="email"
+                            type="email"
+                            placeholder="Email"
+                            value={form.email}
+                            onChange={handleChange}
+                            required
+                        />
+                    </div>
+                    <div className="form-input-group">
+                        <input
+                            type="password"
+                            name="password"
+                            placeholder="Hasło"
+                            value={form.password}
+                            onChange={handleChange}
+                            required
+                        />
+                    </div>
+                    <div className="form-input-group">
+                        <input
+                            type="password"
+                            name="confirmPassword"
+                            placeholder="Potwierdź hasło"
+                            value={form.confirmPassword}
+                            onChange={handleChange}
+                            required
+                        />
+                    </div>
+                    <button type="submit" disabled={loading}>
+                        {loading ? "Rejestracja..." : "Zarejestruj się"}
+                    </button>
+                </form>
+            </div>
         </div>
     );
 }
