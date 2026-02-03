@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { resetPassword } from "../../services/auth";
+import "./auth.css";
 
 export default function ResetPasswordForm() {
     const navigate = useNavigate();
@@ -42,39 +43,38 @@ export default function ResetPasswordForm() {
     };
 
     return (
-        <div style={{ maxWidth: 400, margin: "0 auto" }}>
-            <h2>Ustaw nowe hasło</h2>
-            {error && (
-                <p style={{ color: "red", marginBottom: 10 }}>
-                    {error}
-                </p>
-            )}
-            <form onSubmit={handleSubmit}>
-                <div style={{ marginBottom: 10 }}>
-                    <input
-                        type="password"
-                        placeholder="Nowe hasło"
-                        value={newPassword}
-                        onChange={(e) => setNewPassword(e.target.value)}
-                        required
-                        style={{ width: "100%", padding: 8, boxSizing: "border-box" }}
-                    />
-                </div>
-                <div style={{ marginBottom: 10 }}>
-                    <input
-                        type="password"
-                        placeholder="Potwierdź nowe hasło"
-                        value={confirmPassword}
-                        onChange={(e) => setConfirmPassword(e.target.value)}
-                        required
-                        style={{ width: "100%", padding: 8, boxSizing: "border-box" }}
-                    />
-                </div>
-                <button type="submit" disabled={loading} style={{ width: "100%", padding: 10 }}>
-                    {loading ? "Resetowanie..." : "Zresetuj hasło"}
-                </button>
-            </form>
+        <div className="auth-page">
+            <div className="auth-form-wrapper">
+                <h2>Ustaw nowe hasło</h2>
+                {error && (
+                    <p className="auth-error-message">
+                        {error}
+                    </p>
+                )}
+                <form onSubmit={handleSubmit}>
+                    <div className="form-input-group">
+                        <input
+                            type="password"
+                            placeholder="Nowe hasło"
+                            value={newPassword}
+                            onChange={(e) => setNewPassword(e.target.value)}
+                            required
+                        />
+                    </div>
+                    <div className="form-input-group">
+                        <input
+                            type="password"
+                            placeholder="Potwierdź nowe hasło"
+                            value={confirmPassword}
+                            onChange={(e) => setConfirmPassword(e.target.value)}
+                            required
+                        />
+                    </div>
+                    <button type="submit" disabled={loading}>
+                        {loading ? "Resetowanie..." : "Zresetuj hasło"}
+                    </button>
+                </form>
+            </div>
         </div>
     );
-
-};
+}
