@@ -1,7 +1,11 @@
+from multiprocessing import context
 from transformers import AutoModelForCausalLM, AutoTokenizer
-from pydantic import BaseModel
-from fastapi import APIRouter, Request
+from fastapi import APIRouter, Depends, Request
+from sqlalchemy.ext.asyncio import AsyncSession
+from db.database import get_async_session
+from services.chat_service import get_formatted_context, create_new_message
 from core.rate_limit import limiter
+from schemas.chat import ChatRequest
 from .tts import save_audio
 
 
@@ -9,8 +13,6 @@ from .tts import save_audio
 model_name = "Qwen/Qwen2.5-1.5B-Instruct"
 router = APIRouter()
 
-class ChatRequest(BaseModel):
-    message: str
     
 # Load NLP model and tokenizer
 def load_model_nlp():
@@ -21,19 +23,16 @@ def load_model_nlp():
 # Handle chat requests
 @router.post("/chat")
 @limiter.limit("4/minute")  # Rate limit: 4 requests per minute
-async def chat(request: Request, message: ChatRequest):
-    message = message.message
+async def chat(request: Request, data: ChatRequest, db: AsyncSession = Depends(get_async_session)):
     # Get the loaded NLP model and tokenizer
     model, tokenizer = request.app.state.model_nlp, request.app.state.tokenizer_nlp
-    
-    # Prepare the conversation context
-    messages = [
-        {"role": "system", "content": "You are Qwen, created by Alibaba Cloud. You are a helpful assistant for learning English."},
-        {"role": "user", "content": message},
-    ]
-    
+
+    context = await get_formatted_context(db, data.conversation_id)
+
+    context.append({"role": "user", "content": data.message})
+
     # Tokenize input and generate a response
-    text = tokenizer.apply_chat_template(messages, tokenize=False, add_generation_prompt=True)
+    text = tokenizer.apply_chat_template(context, tokenize=False, add_generation_prompt=True)
     model_inputs = tokenizer([text], return_tensors="pt").to(model.device)
     generated_ids = model.generate(
         **model_inputs, 
@@ -46,7 +45,21 @@ async def chat(request: Request, message: ChatRequest):
     # Decode the response
     generated_ids = [output_ids[len(input_ids):] for input_ids, output_ids in zip(model_inputs.input_ids, generated_ids)]
     response = tokenizer.batch_decode(generated_ids, skip_special_tokens=True)[0]
-    
+
+    await create_new_message(
+        db,
+        data.conversation_id,
+        "user",
+        data.message
+    )
+
+    await create_new_message(
+        db,
+        data.conversation_id,
+        "assistant",
+        response
+    )
+    await db.commit()
     # Save response as audio
     url_path = save_audio(request, response)
 
