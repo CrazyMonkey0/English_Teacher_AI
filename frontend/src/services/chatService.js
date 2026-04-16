@@ -1,7 +1,7 @@
 import api from "./api";
 
-export const sendMessageToBot = async (message) => {
-    const response = await api.post("/nlp/chat", { message });
+export const sendMessageToBot = async (conversation_id, message) => {
+    const response = await api.post("/nlp/chat", { conversation_id, message });
     return response.data;
 };
 

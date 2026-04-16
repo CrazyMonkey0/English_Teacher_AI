@@ -1,9 +1,6 @@
 from fastapi_users.db import SQLAlchemyBaseUserTable
 from sqlalchemy import Column, String, Integer
-from sqlalchemy.orm import DeclarativeBase
-
-class Base(DeclarativeBase):
-    pass
+from db.database import Base
 
 class User(SQLAlchemyBaseUserTable[int], Base):
     __tablename__ = "users"
