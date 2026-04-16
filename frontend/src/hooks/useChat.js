@@ -1,20 +1,26 @@
 import { useState } from "react";
+import { v4 as uuidv4 } from "uuid";
 import { sendMessageToBot, sendAudioMessageToBot } from "../services/chatService.js";
 
 export const useChat = () => {
     const [messages, setMessages] = useState([]);
     const [loading, setLoading] = useState(false);
 
-    // Sending text message
+    const [conversationId] = useState(() => {
+        const id = localStorage.getItem("conversation_id") || uuidv4();
+        localStorage.setItem("conversation_id", id);
+        return id;
+    });
+
     const sendMessage = async (text) => {
         if (!text.trim()) return;
 
-        // Add user message
         setMessages((prev) => [...prev, { sender: "user", text, type: "text" }]);
         setLoading(true);
 
         try {
-            const botReply = await sendMessageToBot(text);
+            const botReply = await sendMessageToBot(conversationId, text);
+
             setMessages((prev) => [
                 ...prev,
                 {
@@ -26,6 +32,7 @@ export const useChat = () => {
             ]);
         } catch (err) {
             console.error("Błąd wysyłania wiadomości:", err);
+
             setMessages((prev) => [
                 ...prev,
                 { sender: "bot", text: "Błąd w odpowiedzi bota", type: "error" }
